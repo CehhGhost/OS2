@@ -29,4 +29,4 @@
 * Множество процессов взаимодействуют с использованием семафоров в стандарте UNIX SYSTEM V. Обмен данными ведется через разделяемую память в стандарте UNIX SYSTEM
 V.
 ### 2) Пример работы программы:
-* [input1.txt](https://github.com/CehhGhost/OS1/blob/main/FirstProg/Tests/input1.txt)
+* [Test](https://github.com/CehhGhost/OS2/blob/main/ThirdProg/Tests/Test3.png)
