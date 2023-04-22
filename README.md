@@ -24,3 +24,9 @@
 памяти. Обмен данными также ведется через разделяемую память в стандарте POSIX.
 ### 2) Тесты:
 * [input1.txt](https://github.com/CehhGhost/OS1/blob/main/FirstProg/Tests/input1.txt)
+## <br> На 6 баллов:
+### 1) Предоставленно решение задачи на С [main.c](https://github.com/CehhGhost/OS2/blob/main/ThirdProg/C%20code/main.c), с условием:
+* Множество процессов взаимодействуют с использованием семафоров в стандарте UNIX SYSTEM V. Обмен данными ведется через разделяемую память в стандарте UNIX SYSTEM
+V.
+### 2) Тесты:
+* [input1.txt](https://github.com/CehhGhost/OS1/blob/main/FirstProg/Tests/input1.txt)
