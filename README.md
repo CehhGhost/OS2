@@ -19,7 +19,7 @@
 ### 2) Тесты:
 * [input1.txt](https://github.com/CehhGhost/OS1/blob/main/FirstProg/Tests/input1.txt)
 ## <br> На 5 баллов:
-### 1) Предоставленно решение задачи на С [main.c](https://github.com/CehhGhost/OS2/blob/main/FirstProg/C%20code/main.c), с условием:
+### 1) Предоставленно решение задачи на С [main.c](https://github.com/CehhGhost/OS2/blob/main/SecondProg/C%20code/main.c), с условием:
 * Множество процессов взаимодействуют с использованием неименованных POSIX семафоров расположенных в разделяемой
 памяти. Обмен данными также ведется через разделяемую память в стандарте POSIX.
 ### 2) Тесты:
