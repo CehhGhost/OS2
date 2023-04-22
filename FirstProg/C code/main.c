@@ -44,10 +44,10 @@ void* client(void* arg) {
     client_arg* c = (client_arg*) arg;
     int room_price, room_number;
     sem_t* sem_mutex = sem_open(SEM_MUTEX, O_CREAT, 0666, 1);
-    sem_wait(sem_mutex);  // acquire lock
+    sem_wait(sem_mutex);
     room_number = findRoom(c->budget);
     if (room_number == -1) {
-        sem_post(sem_mutex);  // release lock
+        sem_post(sem_mutex);
         free(c);
         sem_close(sem_mutex);
         pthread_exit(NULL);
@@ -56,11 +56,11 @@ void* client(void* arg) {
     rooms[room_number].client = c->id;
     c->budget -= room_price;
     printf("Client %d has occupied room %d for %d\n", c->id, room_number, room_price);
-    sem_post(sem_mutex); // release lock
+    sem_post(sem_mutex);
     usleep((rand() % 5 + 1) * 200000);
-    sem_wait(sem_mutex); // acquire lock
+    sem_wait(sem_mutex);
     rooms[room_number].client = -1;
-    sem_post(sem_mutex); // release lock
+    sem_post(sem_mutex);
     printf("Client %d has left room %d\n", c->id, room_number);
     free(c);
     sem_close(sem_mutex);
@@ -90,6 +90,6 @@ int main() {
         usleep(1000);
     }
     sem_close(sem_mutex);
-    sem_unlink(SEM_MUTEX); // unlink the semaphore
+    sem_unlink(SEM_MUTEX);
     return 0;
 }
