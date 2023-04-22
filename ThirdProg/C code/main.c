@@ -3,10 +3,16 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <sys/sem.h>
 
 #define NUM_ROOMS 25
 
-pthread_mutex_t rooms_mutex = PTHREAD_MUTEX_INITIALIZER;
+union semun {
+    int val;
+    struct semid_ds* buf;
+    unsigned short* array;
+    struct seminfo* __buf;
+};
 
 typedef struct {
     int id;
@@ -19,6 +25,8 @@ typedef struct {
 } room_arg;
 
 room_arg rooms[NUM_ROOMS];
+
+int sem_mutex_id;
 
 int findRoom(int budget) {
     int n;
@@ -39,31 +47,35 @@ int findRoom(int budget) {
     return -1;
 }
 
+
 void* client(void* arg) {
     client_arg* c = (client_arg*) arg;
     int room_price, room_number;
-
-    pthread_mutex_lock(&rooms_mutex);  // acquire lock
+    struct sembuf sem_op;
+    sem_op.sem_num = 0;
+    sem_op.sem_flg = 0;
+    sem_op.sem_op = -1;
+    semop(sem_mutex_id, &sem_op, 1);
     room_number = findRoom(c->budget);
     if (room_number == -1) {
-        pthread_mutex_unlock(&rooms_mutex);  // release lock
+        sem_op.sem_op = 1;
+        semop(sem_mutex_id, &sem_op, 1);
         free(c);
         pthread_exit(NULL);
     }
     room_price = rooms[room_number].price;
-    rooms[room_number].client = c->id;  // assign room to client
-    c->budget -= room_price;  // deduct room price from budget
+    rooms[room_number].client = c->id;
+    c->budget -= room_price;
     printf("Client %d has occupied room %d for %d\n", c->id, room_number, room_price);
-    pthread_mutex_unlock(&rooms_mutex);  // release lock
-
-    usleep((rand() % 5 + 1) * 50000);  // simulate stay in hotel
-
-    pthread_mutex_lock(&rooms_mutex);  // acquire lock
-    rooms[room_number].client = -1;  // free room
-    pthread_mutex_unlock(&rooms_mutex);  // release lock
-
+    sem_op.sem_op = 1;
+    semop(sem_mutex_id, &sem_op, 1);
+    usleep((rand() % 5 + 1) * 50000);
+    sem_op.sem_op = -1;
+    semop(sem_mutex_id, &sem_op, 1);
+    rooms[room_number].client = -1;
+    sem_op.sem_op = 1;
+    semop(sem_mutex_id, &sem_op, 1);
     printf("Client %d has left room %d\n", c->id, room_number);
-
     free(c);
     pthread_exit(NULL);
 }
@@ -71,6 +83,10 @@ void* client(void* arg) {
 int main() {
     int i;
     srand(time(NULL));
+    sem_mutex_id = semget(IPC_PRIVATE, 1, IPC_CREAT | 0666);
+    union semun sem_arg;
+    sem_arg.val = 1;
+    semctl(sem_mutex_id, 0, SETVAL, sem_arg);
     for (i = 0; i < NUM_ROOMS; ++i) {
         rooms[i].client = -1;
         if (i < 10) {
@@ -81,15 +97,15 @@ int main() {
             rooms[i].price = 6000;
         }
     }
-
     for (i = 0; findRoom(6000) != -1; i++) {
         client_arg* arg = malloc(sizeof(client_arg));
         arg->id = i;
-        arg->budget = (rand() % 10 + 1) * 1000;  // choose random budget between 1000 and 10000
-        pthread_t pthread;
-        pthread_create(&pthread, NULL, client, arg);
-        usleep(1000);  // sleep to prevent threads from starting at exactly the same time
-    }
-
-    return 0;
+        arg->budget = (rand() % 1000 + 5000);
+pthread_t client_thread;
+pthread_create(&client_thread, NULL, client, (void*) arg);
+pthread_detach(client_thread);
+usleep((rand() % 5 + 1) * 50000);
+}
+semctl(sem_mutex_id, 0, IPC_RMID, 0);
+return 0;
 }
