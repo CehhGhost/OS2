@@ -59,7 +59,7 @@ void* client(void* arg) {
     c->budget -= room_price;
     printf("Client %d has occupied room %d for %d\n", c->id, room_number, room_price);
     sem_post(&mutex_sem);
-    usleep((rand() % 5 + 1) * 200000);
+    usleep((rand() % 5 + 1) * 50000);
     sem_wait(&mutex_sem);
     rooms[room_number].client = -1;
     sem_post(&rooms_sem);
