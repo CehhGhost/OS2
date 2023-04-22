@@ -50,20 +50,20 @@ void* client(void* arg) {
     sem_wait(&mutex_sem);  // acquire lock
     room_number = findRoom(c->budget);
     if (room_number == -1) {
-        sem_post(&mutex_sem); // release lock
+        sem_post(&mutex_sem);
         free(c);
         pthread_exit(NULL);
     }
     room_price = rooms[room_number].price;
-    rooms[room_number].client = c->id; // assign room to client
-    c->budget -= room_price; // deduct room price from budget
+    rooms[room_number].client = c->id;
+    c->budget -= room_price;
     printf("Client %d has occupied room %d for %d\n", c->id, room_number, room_price);
-    sem_post(&mutex_sem); // release lock
-    usleep((rand() % 5 + 1) * 200000); // simulate stay in hotel
-    sem_wait(&mutex_sem); // acquire lock
-    rooms[room_number].client = -1; // free room
-    sem_post(&rooms_sem); // release room semaphore
-    sem_post(&mutex_sem); // release lock
+    sem_post(&mutex_sem);
+    usleep((rand() % 5 + 1) * 200000);
+    sem_wait(&mutex_sem);
+    rooms[room_number].client = -1;
+    sem_post(&rooms_sem);
+    sem_post(&mutex_sem);
     printf("Client %d has left room %d\n", c->id, room_number);
     free(c);
     pthread_exit(NULL);
@@ -87,10 +87,10 @@ int main() {
     for (i = 0; findRoom(6000) != -1; i++) {
         client_arg* arg = malloc(sizeof(client_arg));
         arg->id = i;
-        arg->budget = (rand() % 10 + 1) * 1000; // choose random budget between 1000 and 10000
+        arg->budget = (rand() % 10 + 1) * 1000;
         pthread_t pthread;
         pthread_create(&pthread, NULL, client, arg);
-        usleep(1000); // sleep to prevent threads from starting at exactly the same time
+        usleep(1000);
     }
     sem_destroy(&rooms_sem);
     sem_destroy(&mutex_sem);
